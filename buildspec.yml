@@ -1,0 +1,39 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Instalando dependências do Node.js"
+      - npm ci
+
+  build:
+    commands:
+      - echo "Compilando TypeScript"
+      - npm run build
+      - echo "Criando arquivo .env"
+      - |
+        cat <<EOF > .env
+        DATABASE_URL=$DATABASE_URL
+        JWT_SECRET=$JWT_SECRET
+        PORT=8080
+        EOF
+      - echo "Listando arquivos preparados para deploy"
+      - ls -la
+
+artifacts:
+  files:
+    - Dockerfile
+    - docker-compose.yml
+    - .env
+    - package*.json
+    - prisma/**/*
+    - src/**/*
+    - tsconfig.json
+
+  discard-paths: no
+  exclude-paths:
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/.ebextensions/**"

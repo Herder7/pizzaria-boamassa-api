@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// criar uma migration: yarn prisma migrate dev
+model User {
+  id         String     @id @default(uuid())
+  name       String
+  email      String
+  password   String
+  perfil     String
+  status     Boolean    @default(true)
+  is_logged  Boolean    @default(false)
+  created_at DateTime?  @default(now()) @db.Timestamptz()
+  updated_at DateTime?  @default(now()) @db.Timestamptz()
+  categories Category[]
+  products   Product[]
+  orders     Order[]
+  tables     Table[]
+  Payment    Payment[]
+
+  @@map("users")
+}
+
+model Category {
+  id         String    @id @default(uuid())
+  name       String
+  status     Boolean   @default(true)
+  created_at DateTime? @default(now()) @db.Timestamptz()
+  updated_at DateTime? @default(now()) @db.Timestamptz()
+  user       User      @relation(fields: [user_id], references: [id])
+  user_id    String
+  products   Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  price       String
+  description String
+  banner      String
+  status      Boolean   @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamptz()
+  updated_at  DateTime? @default(now()) @db.Timestamptz()
+  category    Category  @relation(fields: [category_id], references: [id])
+  category_id String
+  user        User      @relation(fields: [user_id], references: [id])
+  user_id     String
+  items       Item[]
+
+  @@map("products")
+}
+
+model Order {
+  id         String    @id @default(uuid())
+  status     Boolean   @default(false)
+  draft      Boolean   @default(false)
+  name       String?
+  paid       Boolean   @default(false)
+  paid_draft String    @default("")
+  created_at DateTime? @default(now()) @db.Timestamptz()
+  updated_at DateTime? @default(now()) @db.Timestamptz()
+  table      Table     @relation(fields: [table_id], references: [id])
+  table_id   String
+  user       User      @relation(fields: [user_id], references: [id])
+  user_id    String
+  items      Item[]
+
+  @@map("orders")
+}
+
+model Table {
+  id          String    @id @default(uuid())
+  number      String
+  status      Boolean   @default(true)
+  free        Boolean   @default(true)
+  close_bill  Boolean   @default(false)
+  call_waiter Boolean   @default(false)
+  created_at  DateTime? @default(now()) @db.Timestamptz()
+  updated_at  DateTime? @default(now()) @db.Timestamptz()
+  user        User      @relation(fields: [user_id], references: [id])
+  user_id     String
+  orders      Order[]
+  Payment     Payment[]
+
+  @@map("tables")
+}
+
+model Item {
+  id         String    @id @default(uuid())
+  amount     Int
+  created_at DateTime? @default(now()) @db.Timestamptz()
+  updated_at DateTime? @default(now()) @db.Timestamptz()
+  order      Order     @relation(fields: [order_id], references: [id])
+  order_id   String
+  product    Product   @relation(fields: [product_id], references: [id])
+  product_id String
+
+  @@map("items")
+}
+
+model Payment {
+  id            String    @id @default(uuid())
+  total_amount  String
+  amount_paid   String    @default("0")
+  amount_pix    String    @default("0")
+  amount_money  String    @default("0")
+  amount_debit  String    @default("0")
+  amount_credit String    @default("0")
+  created_at    DateTime? @default(now()) @db.Timestamptz()
+  updated_at    DateTime? @default(now()) @db.Timestamptz()
+  user          User      @relation(fields: [user_id], references: [id])
+  user_id       String
+  table         Table     @relation(fields: [table_id], references: [id])
+  table_id      String
+
+  @@map("payments")
+}

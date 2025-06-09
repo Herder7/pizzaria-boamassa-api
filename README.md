@@ -10,16 +10,13 @@ Api de Restaurante Ficticio Boa Massa
 - AWS CodePipeline
 - Elastic Beanstalk
 
-# Github Actions
-- PR para develop
+# Pipeline AWS Codepipeline
+- PR para staging
 - PR para master
 
 # Ambientes
 - Prod
-- Dev
-
-# Projeto
-urls
+- Test
 
 # Banco de dados
 Postgresql
